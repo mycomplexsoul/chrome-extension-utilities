@@ -6,7 +6,7 @@ class TextToSpeech {
   constructor() {
     this.synth.onvoiceschanged = () => {
       this.voices = this.synth.getVoices();
-      console.log(`Voices are ready, loaded ${this.voices.length} voices`);
+      console.log(`Voices are ready, loaded ${this.voices.length} voices from extension`);
     };
   }
 
@@ -29,14 +29,12 @@ class TextToSpeech {
     this.utt.volume = volume;
 
     this.synth.cancel();
-    console.log(`Speaking: ${text}`);
     this.synth.speak(this.utt);
 
     return new Promise((resolve, reject) => {
       let resolveCalled = false;
       if (this.utt) {
         this.utt.onend = () => {
-          console.log("Speech ended");
           resolveCalled = true;
           return resolve(true);
         };

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { textToSpeech } from './TextToSpeech'
-import { extractItemsFromPage } from './commands/read-product-hunt'
+import { extractProductsFromPage } from './commands/read-product-hunt'
+import { extractItemsFromPage } from './commands/read-feedly'
 
 const COMMANDS = [
   {
@@ -22,6 +23,10 @@ const COMMANDS = [
   {
     name: "read-product-hunt",
     description: "Lee el nombre y descripción de los productos en la página de inicio de Product Hunt."
+  },
+  {
+    name: "read-feedly",
+    description: "Lee artículos cargados en la página de Feedly."
   }
 ]
 
@@ -55,11 +60,18 @@ const doCommand = async (command: string) => {
       break;
     }
     case "read-product-hunt": {
+      const items = extractProductsFromPage();
+      await textToSpeech.textToSpeechVoice(`Leyendo ${items.length} productos`, 'es-US', 1, 0.6);
+      for (const item of items) {
+        await textToSpeech.textToSpeechVoice(item, 'es-US', 1, 0.6);
+      }
+      break;
+    }
+    case "read-feedly": {
       const items = extractItemsFromPage();
-      if (items.length > 0) {
-        for (const item of items) {
-          await textToSpeech.textToSpeechVoice(item, 'es-US', 1, 0.6);
-        }
+      await textToSpeech.textToSpeechVoice(`Leyendo ${items.length} artículos`, 'es-US', 1, 0.6);
+      for (const item of items) {
+        await textToSpeech.textToSpeechVoice(item, 'es-US', 1, 0.6);
       }
       break;
     }

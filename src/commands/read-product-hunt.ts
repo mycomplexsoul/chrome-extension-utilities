@@ -1,4 +1,4 @@
-const extractItemsFromPage = (): string[] => {
+const extractProductsFromPage = (): string[] => {
   const items: string[] = Array.from(
     document.querySelectorAll('[data-test^=homepage-section-]')
   ).map((e) => Array.from(e.querySelectorAll('[data-sentry-component=Card]')).map((p) => {
@@ -14,5 +14,5 @@ const extractItemsFromPage = (): string[] => {
 };
 
 export {
-  extractItemsFromPage,
+  extractProductsFromPage,
 }
