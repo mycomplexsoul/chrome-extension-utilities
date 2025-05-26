@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
+import { textToSpeech } from './TextToSpeech'
+import { extractItemsFromPage } from './commands/read-product-hunt'
 
 const COMMANDS = [
   {
@@ -12,6 +14,14 @@ const COMMANDS = [
   {
     name: "Copiar listado a portapapeles",
     description: "Copia todo el listado acumulado al portapapeles."
+  },
+  {
+    name: "test-voice",
+    description: "Pronuncia 'hola desde la extensión' usando la voz en español con la API SpeechSynthesis."
+  },
+  {
+    name: "read-product-hunt",
+    description: "Lee el nombre y descripción de los productos en la página de inicio de Product Hunt."
   }
 ]
 
@@ -21,7 +31,7 @@ type OmniboxProps = {
   onCommand: (command: string) => void
 }
 
-const doCommand = (command: string) => {
+const doCommand = async (command: string) => {
   const commandName: string = command.split(' ')[0];
   const commandArgs: string[] = command.split(' ').slice(1);
 
@@ -38,6 +48,19 @@ const doCommand = (command: string) => {
     case 'add-to-list-1': {
       const list1 = commandArgs.join(' ');
       console.log(`Agregado a lista 1: ${list1}`);
+      break;
+    }
+    case "test-voice": {
+      await textToSpeech.textToSpeechVoice('hola, si escuchas esto entonces todo funciona bien', 'es-US', 1, 0.6);
+      break;
+    }
+    case "read-product-hunt": {
+      const items = extractItemsFromPage();
+      if (items.length > 0) {
+        for (const item of items) {
+          await textToSpeech.textToSpeechVoice(item, 'es-US', 1, 0.6);
+        }
+      }
       break;
     }
   }
