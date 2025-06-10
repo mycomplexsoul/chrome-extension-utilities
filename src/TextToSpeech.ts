@@ -6,7 +6,7 @@ class TextToSpeech {
   constructor() {
     this.synth.onvoiceschanged = () => {
       this.voices = this.synth.getVoices();
-      console.log(`Voices are ready, loaded ${this.voices.length} voices from extension`);
+      console.log(`Loaded ${this.voices.length} voices from extension`);
     };
   }
 
@@ -28,6 +28,7 @@ class TextToSpeech {
     this.utt.rate = rate;
     this.utt.volume = volume;
 
+    console.log(`Speaking: "${text}" with voice ${this.utt.voice?.name}`);
     this.synth.cancel();
     this.synth.speak(this.utt);
 
@@ -46,7 +47,7 @@ class TextToSpeech {
           this.synth.cancel();
           return reject(false);
         }
-      }, 15000);
+      }, 20000);
     });
   }
 }

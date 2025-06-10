@@ -1,34 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { textToSpeech } from './TextToSpeech'
-import { extractProductsFromPage } from './commands/read-product-hunt'
-import { extractItemsFromPage } from './commands/read-feedly'
-
-const COMMANDS = [
-  {
-    name: "copy-url",
-    description: "Copia la URL actual al portapapeles."
-  },
-  {
-    name: "Agregar a listado para copia",
-    description: "Agrega el texto ingresado al listado para copiar más tarde."
-  },
-  {
-    name: "Copiar listado a portapapeles",
-    description: "Copia todo el listado acumulado al portapapeles."
-  },
-  {
-    name: "test-voice",
-    description: "Pronuncia 'hola desde la extensión' usando la voz en español con la API SpeechSynthesis."
-  },
-  {
-    name: "read-product-hunt",
-    description: "Lee el nombre y descripción de los productos en la página de inicio de Product Hunt."
-  },
-  {
-    name: "read-feedly",
-    description: "Lee artículos cargados en la página de Feedly."
-  }
-]
+import { urlRotator } from './utilities/UrlRotator'
+import { COMMANDS, doCommand } from './runCommand'
 
 type OmniboxProps = {
   open: boolean
@@ -36,52 +8,15 @@ type OmniboxProps = {
   onCommand: (command: string) => void
 }
 
-const doCommand = async (command: string) => {
-  const commandName: string = command.split(' ')[0];
-  const commandArgs: string[] = command.split(' ').slice(1);
-
-  switch (commandName) {
-    case "copy-url": {
-      const url = window.location.href;
-      navigator.clipboard.writeText(url).then(() => {
-        console.log(`URL copiada: ${url}`);
-      }).catch(err => {
-        console.error('Error al copiar la URL: ', err);
-      });
-      break;
-    }
-    case 'add-to-list-1': {
-      const list1 = commandArgs.join(' ');
-      console.log(`Agregado a lista 1: ${list1}`);
-      break;
-    }
-    case "test-voice": {
-      await textToSpeech.textToSpeechVoice('hola, si escuchas esto entonces todo funciona bien', 'es-US', 1, 0.6);
-      break;
-    }
-    case "read-product-hunt": {
-      const items = extractProductsFromPage();
-      await textToSpeech.textToSpeechVoice(`Leyendo ${items.length} productos`, 'es-US', 1, 0.6);
-      for (const item of items) {
-        await textToSpeech.textToSpeechVoice(item, 'es-US', 1, 0.6);
-      }
-      break;
-    }
-    case "read-feedly": {
-      const items = extractItemsFromPage();
-      await textToSpeech.textToSpeechVoice(`Leyendo ${items.length} artículos`, 'es-US', 1, 0.6);
-      for (const item of items) {
-        await textToSpeech.textToSpeechVoice(item, 'es-US', 1, 0.6);
-      }
-      break;
-    }
-  }
-}
-
 const Omnibox: React.FC<OmniboxProps> = ({ open, onClose, onCommand }) => {
   const [input, setInput] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
 
+  useEffect(() => {
+    const url = window.location.href;
+    urlRotator.init(url);
+  }, [])
+  
   useEffect(() => {
     if (open && inputRef.current) {
       inputRef.current.focus()

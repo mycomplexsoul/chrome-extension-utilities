@@ -1,14 +1,24 @@
-// Este archivo se inyectará como content script y renderizará el Omnibox en la página activa
+// This file will be injected as a content script and will render the Omnibox in the active page
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import Omnibox from './Omnibox';
+import { doCommand } from './runCommand';
 
-console.log('Inyectando Omnibox en la página activa', { reactVersion: React.version });
+declare global {
+  interface Window {
+    doCommand: typeof doCommand;
+  }
+}
+
+console.log('Injecting Omnibox in the active page', { reactVersion: React.version });
 const containerId = 'chrome-extension-omnibox-root';
 
 function injectOmnibox() {
+  window.doCommand = (command: string) => doCommand(command);
+  console.log('Omnibox registered doCommand on console', { command: window.doCommand });
+
   if (document.getElementById(containerId)) return;
-  // Crear el contenedor y el shadow root
+  // Create the container and the shadow root
   const container = document.createElement('div');
   container.id = containerId;
   container.style.position = 'fixed';
@@ -20,12 +30,12 @@ function injectOmnibox() {
   container.style.pointerEvents = 'none';
   document.body.appendChild(container);
 
-  // Shadow DOM para aislar React y estilos
+  // Shadow DOM to isolate React and styles
   const shadow = container.attachShadow({ mode: 'open' });
   const shadowRootDiv = document.createElement('div');
   shadow.appendChild(shadowRootDiv);
 
-  // Opcional: inyectar estilos globales dentro del shadow root
+  // Optional: inject global styles inside the shadow root
   const style = document.createElement('style');
   style.textContent = `
     :host { all: initial; }
@@ -34,29 +44,36 @@ function injectOmnibox() {
   shadow.appendChild(style);
 
   let omniboxOpen = false;
+  let root: ReturnType<typeof createRoot> | null = null;
   const handleClose = () => {
     omniboxOpen = false;
     render();
   };
   const handleCommand = (command: string) => {
-    console.log(`Comando ejecutado: ${command}`);
+    console.log(`Command executed: ${command}`);
   };
-  const handleKeyDown = (e: KeyboardEvent) => {
-    if (e.ctrlKey && e.key === 'k') {
+  // Register keydown, keyup, and keypress events on window in capture mode for maximum compatibility
+  const keyHandler = (e: KeyboardEvent) => {
+    console.log('keydown/keyup/keypress event', e.type, e.ctrlKey, e.shiftKey, e.altKey, e.key);
+    // Try a less common combination to avoid conflicts
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'l') {
       e.preventDefault();
       omniboxOpen = true;
       render();
     }
   };
-  document.addEventListener('keydown', handleKeyDown);
+  window.addEventListener('keydown', keyHandler, true);
 
   function render() {
-    // Asegura que el div esté en el shadow DOM antes de renderizar
+    // Ensure the div is in the shadow DOM before rendering
     if (!shadowRootDiv.isConnected) {
       shadow.appendChild(shadowRootDiv);
     }
-    // Renderiza sólo el Omnibox, no el componente App ni nada de main.tsx
-    createRoot(shadowRootDiv).render(
+    // Use a persistent root to avoid issues with React concurrent rendering
+    if (!root) {
+      root = createRoot(shadowRootDiv);
+    }
+    root.render(
       <Omnibox open={omniboxOpen} onClose={handleClose} onCommand={handleCommand} />
     );
     container.style.pointerEvents = omniboxOpen ? 'auto' : 'none';
