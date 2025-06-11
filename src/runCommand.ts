@@ -6,75 +6,79 @@ import { extractCoin360, extractFeedly, extractGBM, extractPiQ, extractTweets } 
 const COMMANDS = [
   {
     name: "copy-url",
-    description: "Copia la URL actual al portapapeles."
+    description: "Copies the current URL to the clipboard."
   },
   {
     name: "Agregar a listado para copia",
-    description: "Agrega el texto ingresado al listado para copiar más tarde."
+    description: "Adds the entered text to the list to copy later."
   },
   {
     name: "Copiar listado a portapapeles",
-    description: "Copia todo el listado acumulado al portapapeles."
+    description: "Copies the entire accumulated list to the clipboard."
   },
   {
     name: "test-voice",
-    description: "Pronuncia 'hola desde la extensión' usando la voz en español con la API SpeechSynthesis."
+    description: "Speaks 'hola desde la extensión' using a Spanish voice with the SpeechSynthesis API."
   },
   {
     name: "read-product-hunt",
-    description: "Lee el nombre y descripción de los productos en la página de inicio de Product Hunt."
+    description: "Reads the name and description of products on the Product Hunt homepage."
   },
   {
     name: "copy-product-hunt",
-    description: "Copia el nombre y descripción de los productos en la página de inicio de Product Hunt."
+    description: "Copies the name and description of products on the Product Hunt homepage."
   },
   {
     name: "read-feedly",
-    description: "Lee artículos cargados en la página de Feedly."
+    description: "Reads articles loaded on the Feedly page."
   },
   {
     name: "rotation-start",
-    description: "Inicia la rotación de URLs."
+    description: "Starts the URL rotation."
   },
   {
     name: "rotation-stop",
-    description: "Detiene la rotación de URLs."
+    description: "Stops the URL rotation."
   },
   {
     name: "rotation-next",
-    description: "Salta a la siguiente URL en la rotación."
+    description: "Jumps to the next URL in the rotation."
   },
   {
     name: "rotation-show-controls",
-    description: "Muestra los controles de rotación de URLs."
+    description: "Shows the URL rotation controls."
   },
   {
     name: "rotation-hide-controls",
-    description: "Oculta los controles de rotación de URLs."
+    description: "Hides the URL rotation controls."
   },
   {
     name: "read-tweets",
-    description: "Lee los posts de Twitter cargados en la página actual."
+    description: "Reads the Twitter posts loaded on the current page."
+  },
+  {
+    name: "copy-tweets",
+    description: "Copies the Twitter posts loaded on the current page."
   },
   {
     name: "read-gbm-newsletter",
-    description: "Lee el contenido del boletín de noticias de GBM (Grupo Bursátil Mexicano) si está disponible en la página actual."
+    description: "Reads the content of the GBM (Grupo Bursátil Mexicano) newsletter if available on the current page."
   },
   {
     name: "copy-gbm-newsletter",
-    description: "Copia el contenido del boletín de noticias de GBM (Grupo Bursátil Mexicano) si está disponible en la página actual."
+    description: "Copies the content of the GBM (Grupo Bursátil Mexicano) newsletter if available on the current page."
   },
   {
     name: "copy-piq",
-    description: "Copia el contenido de noticias de PiQ si está disponible en la página actual."
+    description: "Copies the news content from PiQ if available on the current page."
   },
   {
     name: "copy-coin360",
-    description: "Copia el contenido de noticias de coin360.com si está disponible en la página actual."
+    description: "Copies the news content from coin360.com if available on the current page."
   },
   {
     name: "copy-feedly",
-    description: "Copia el contenido de artículos de Feedly si está disponible en la página actual."
+    description: "Copies the article content from Feedly if available on the current page."
   },
 ];
 
@@ -149,6 +153,12 @@ const doCommand = async (command: string) => {
       for (const item of items) {
         await textToSpeech.textToSpeechVoice(item, 'es-US', 1, 0.6);
       }
+      break;
+    }
+    case "copy-tweets": {
+      const items = extractTweets();
+      await navigator.clipboard.writeText(items.join('\n'))
+      await textToSpeech.textToSpeechVoice(`Copiados ${items.length} posts al portapapeles`, 'es-US', 1, 0.6);
       break;
     }
     case "read-gbm-newsletter": {
