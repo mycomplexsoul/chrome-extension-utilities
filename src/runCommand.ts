@@ -1,7 +1,7 @@
 import { textToSpeech } from './TextToSpeech'
 import { extractProductsFromPage } from './commands/read-product-hunt'
 import { urlRotator } from './utilities/UrlRotator'
-import { extractCoin360, extractFeedly, extractGBM, extractPiQ, extractTweets } from './commands/extract-content-from-page'
+import { extractCoin360, extractFeedly, extractGBM, extractPiQ, extractTelegram, extractTweets } from './commands/extract-content-from-page'
 
 const COMMANDS = [
   {
@@ -79,6 +79,10 @@ const COMMANDS = [
   {
     name: "copy-feedly",
     description: "Copies the article content from Feedly if available on the current page."
+  },
+  {
+    name: "copy-telegram",
+    description: "Copies the messages content from Telegram if available on the current page."
   },
 ];
 
@@ -196,6 +200,12 @@ const doCommand = async (command: string) => {
       const items = extractFeedly();
       await navigator.clipboard.writeText(items.join('\n'))
       await textToSpeech.textToSpeechVoice(`Copiados ${items.length} artículos al portapapeles`, 'es-US', 1, 0.6);
+      break;
+    }
+    case "copy-telegram": {
+      const items = extractTelegram();
+      await navigator.clipboard.writeText(items.join('\n'))
+      await textToSpeech.textToSpeechVoice(`Copiados ${items.length} mensajes al portapapeles`, 'es-US', 1, 0.6);
       break;
     }
   }

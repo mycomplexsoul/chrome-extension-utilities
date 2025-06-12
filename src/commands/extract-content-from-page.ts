@@ -15,6 +15,28 @@ const extractPiQ = (): string[] => extractContentFromPage('div.text-primary.v2-s
 const extractTweets = (): string[] => extractContentFromPage('[data-testid="tweetText"]');
 const extractCoin360 = (): string[] => extractContentFromPage('a');
 
+const extractTelegram = (): string[] => {
+  const items: string[] = Array.from(
+    document.querySelectorAll('.text-content.clearfix.with-meta')
+  ).map(e => e.textContent || '');
+  const unreadCount = parseInt(
+    document.querySelector(
+      '.ListItem.Chat.chat-item-clickable.group.selected'
+    )?.querySelector('.ChatBadge.unread')?.textContent || '', 10) || 1;
+  
+    if (unreadCount > 0) {
+      const unread = items.slice(items.length - unreadCount, items.length);
+      console.log('telegram extracted items', {
+        items,
+        unreadCount,
+        unread,
+      });
+    return unread;
+  }
+
+  return [];
+}
+
 export {
   extractContentFromPage,
   extractFeedly,
@@ -22,4 +44,5 @@ export {
   extractPiQ,
   extractTweets,
   extractCoin360,
+  extractTelegram,
 }
