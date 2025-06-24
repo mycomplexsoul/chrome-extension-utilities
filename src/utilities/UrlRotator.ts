@@ -189,6 +189,7 @@ class UrlRotator {
   public selectors = {
     CONTAINER: 'urlRotator_Container',
     MESSAGES_CONTAINER: 'urlRotator_MessagesContainer',
+    CLOSE_BTN: 'urlRotator_CloseBtn',
   }
   public timer = 60 * 2;
   public selectedList: string | null = null;
@@ -246,14 +247,44 @@ class UrlRotator {
 
   generateHTML = () => {
     const containerStyles = 'position: fixed;z-index: 99999999;bottom: 300px; left: 10px; background-color: #16202b; border: 1px dotted rgb(1, 12, 94); padding: 10px; color: #fff';
-    return `<div id="${this.selectors.CONTAINER}" style="${containerStyles}">
-      <div id="${this.selectors.MESSAGES_CONTAINER}"></div>
-    </div>`;
+    const buttonStyles = [
+      `#${this.selectors.MESSAGES_CONTAINER} {`,
+      '  position: relative;',
+      '  display: flex;',
+      '  align-items: center;',
+      '}',
+      `#${this.selectors.CLOSE_BTN} {`,
+      '  display: none;',
+      '  margin-left: 10px;',
+      '  background: #e74c3c;',
+      '  color: #fff;',
+      '  border: none;',
+      '  border-radius: 4px;',
+      '  padding: 4px 8px;',
+      '  cursor: pointer;',
+      '  font-size: 12px;',
+      '  z-index: 100000000;',
+      '}',
+      `#${this.selectors.MESSAGES_CONTAINER}:hover #${this.selectors.CLOSE_BTN} {`,
+      '  display: block;',
+      '}',
+    ].join('\n');
+    const style = `<style id=\"urlRotator_Style\">${buttonStyles}</style>`;
+    return `${style}<div id=\"${this.selectors.CONTAINER}\" style=\"${containerStyles}\">\n  <div id=\"${this.selectors.MESSAGES_CONTAINER}\">\n    <span id=\"urlRotator_Timer\"></span>\n    <button id=\"${this.selectors.CLOSE_BTN}\" title=\"Cerrar\">✕</button>\n  </div>\n</div>`;
   }
 
   registerHandlers = () => {
     const nextButton = document.querySelector(`#${this.selectors.MESSAGES_CONTAINER}`);
     nextButton?.addEventListener('click', () => this.nextRotation());
+
+    // Handler para el botón de cerrar
+    const closeBtn = document.getElementById(this.selectors.CLOSE_BTN);
+    if (closeBtn) {
+      closeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.closeUI();
+      });
+    }
 
     if (this.indexFromUrl !== null) {
       this.startRotation();
@@ -321,15 +352,11 @@ class UrlRotator {
   }
 
   updateTimerUI = () => {
-    const container = document.querySelector(`#${this.selectors.MESSAGES_CONTAINER}`);
-    if (container) {
+    const timerSpan = document.querySelector('#urlRotator_Timer');
+    if (timerSpan) {
       const min = Math.floor((this.remainingTime || 0) / 60);
       const seg = (this.remainingTime || 0) % 60;
-
-      container.innerHTML = `${
-        min >= 10 ? min : '0' + min}:${
-        seg >= 10 ? seg : '0' + seg
-      }`;
+      timerSpan.textContent = `${min >= 10 ? min : '0' + min}:${seg >= 10 ? seg : '0' + seg}`;
     }
   }
 
