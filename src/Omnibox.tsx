@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { urlRotator } from './utilities/UrlRotator'
+import { linkGrabber } from './utilities/LinkGrabber'
 import { COMMANDS, doCommand } from './runCommand'
 
 type OmniboxProps = {
@@ -13,8 +14,13 @@ const Omnibox: React.FC<OmniboxProps> = ({ open, onClose, onCommand }) => {
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
+    // this is the initial render for the omnibox
+    // we can initialize other experiences in here
+    // like the URL rotator
     const url = window.location.href;
     urlRotator.init(url);
+    // or the LinkGrabber
+    linkGrabber.init(url);
   }, [])
   
   useEffect(() => {

@@ -84,6 +84,10 @@ const COMMANDS = [
     name: "copy-telegram",
     description: "Copies the messages content from Telegram if available on the current page."
   },
+  {
+    name: "copy-title-and-url",
+    description: "Copies the title and URL of the current page to the clipboard."
+  },
 ];
 
 const doCommand = async (command: string) => {
@@ -207,6 +211,12 @@ const doCommand = async (command: string) => {
       await navigator.clipboard.writeText(items.join('\n'))
       await textToSpeech.textToSpeechVoice(`Copiados ${items.length} mensajes al portapapeles`, 'es-US', 1, 0.6);
       break;
+    }
+    case "copy-title-and-url": {
+      const title = document.title;
+      const url = window.location.href;
+      await navigator.clipboard.writeText(`${title} - ${url}`);
+      await textToSpeech.textToSpeechVoice(`Copiado título y url al portapapeles`, 'es-US', 1, 0.6);
     }
   }
 }

@@ -96,7 +96,13 @@ class UrlRotator {
               // cleanup headers and app ads
               document.querySelector('section')?.parentNode?.removeChild(
                 document.querySelector('section') as Element
-              )
+              );
+              const container = document.querySelector('#heatmap')?.parentElement;
+              if (container) {
+                container.style = 'height: 120vh; min-height: 1200px;';
+              }
+              // trigger a window resize to fix the layout
+              window.dispatchEvent(new Event('resize'));
             }, 500);
           }
         }
@@ -111,6 +117,15 @@ class UrlRotator {
         time: 60 * 1
       },
       {
+        // investment
+        url: 'https://x.com/i/lists/1934006541612634484',
+        time: 60 * 3
+      },
+      {
+        url: 'https://web.telegram.org/a/',
+        time: 60 * 2
+      },
+      {
         // inversion
         url: 'https://twitter.com/i/lists/1637108420376420362',
         time: 60 * 3
@@ -118,10 +133,6 @@ class UrlRotator {
       {
         url: 'https://coin360.com/',
         time: 60 * 1
-      },
-      {
-        url: 'https://web.telegram.org/a/',
-        time: 60 * 2
       },
       {
         url: 'https://web.whatsapp.com/',
@@ -153,15 +164,30 @@ class UrlRotator {
         url: 'https://www.tradingview.com/chart/IRJZyZIC/',
         time: 60 * 2
       },
+    ],
+    work: [{
+        url: 'https://mail.google.com/mail/u/0/',
+        time: 60 * 10
+      }, {
+        url: 'https://calendar.google.com/calendar/u/0/r/week',
+        time: 60 * 5
+      }, {
+        url: 'http://localhost:8001/balance',
+        time: 60 * 5
+      }, {
+        url: 'https://glow.globant.com/?urlRotatorIndex#/dashboard/open-positions',
+        time: 60 * 10
+      }, {
+        url: 'https://mygrowth.university.globant.com/me',
+        time: 60 * 5
+      }, {
+        url: 'https://globant.udemy.com/organization/home',
+        time: 60 * 5
+      }
     ]
   };
   public selectors = {
     CONTAINER: 'urlRotator_Container',
-    BUTTONS_CONTAINER: 'urlRotator_ButtonsContainer',
-    START_BUTTON: 'urlRotator_StartButton',
-    NEXT_BUTTON: 'urlRotator_NextButton',
-    STOP_BUTTON: 'urlRotator_StopButton',
-    CLOSE_BUTTON: 'urlRotator_CloseButton',
     MESSAGES_CONTAINER: 'urlRotator_MessagesContainer',
   }
   public timer = 60 * 2;
@@ -197,50 +223,37 @@ class UrlRotator {
     } else {
       this.selectedList = this.defaultList();
     }
-    console.log(`activating urlRotator list ${list}`);
     
-    this.injectDiv(this.generateHTML());
+    if (this.indexFromUrl !== null) {
+      console.log(`activating urlRotator list ${list}`);
+      this.injectDiv(this.generateHTML());
 
-    setTimeout(() => {
-      this.registerHandlers();
-      if (list && index !== null) {
-        const onLoad = this.lists[list]?.[parseInt(index, 10)].onLoad;
-
-        // launch onLoad when defined
-        if (onLoad) {
-          onLoad();
+      setTimeout(() => {
+        this.registerHandlers();
+        if (list && index !== null) {
+          const onLoad = this.lists[list]?.[parseInt(index, 10)].onLoad;
+  
+          // launch onLoad when defined
+          if (onLoad) {
+            onLoad();
+          }
         }
-      }
-    }, 300);
+      }, 300);
+    }
+
     return;
   }
 
   generateHTML = () => {
     const containerStyles = 'position: fixed;z-index: 99999999;bottom: 300px; left: 10px; background-color: #16202b; border: 1px dotted rgb(1, 12, 94); padding: 10px; color: #fff';
     return `<div id="${this.selectors.CONTAINER}" style="${containerStyles}">
-      <div id="${this.selectors.BUTTONS_CONTAINER}">
-        <button id="${this.selectors.START_BUTTON}">Rotate urls</button>
-        <button id="${this.selectors.NEXT_BUTTON}">Rotate to next url</button>
-        <br/>
-        <button id="${this.selectors.STOP_BUTTON}">Stop Rotation</button>
-        <button id="${this.selectors.CLOSE_BUTTON}">Hide</button>
-      </div>
       <div id="${this.selectors.MESSAGES_CONTAINER}"></div>
     </div>`;
   }
 
   registerHandlers = () => {
-    const startButton = document.querySelector(`#${this.selectors.START_BUTTON}`);
-    startButton?.addEventListener('click', () => this.startRotation());
-
-    const nextButton = document.querySelector(`#${this.selectors.NEXT_BUTTON}`);
+    const nextButton = document.querySelector(`#${this.selectors.MESSAGES_CONTAINER}`);
     nextButton?.addEventListener('click', () => this.nextRotation());
-
-    const stopButton = document.querySelector(`#${this.selectors.STOP_BUTTON}`);
-    stopButton?.addEventListener('click', () => this.stopRotation());
-    
-    const closeButton = document.querySelector(`#${this.selectors.CLOSE_BUTTON}`);
-    closeButton?.addEventListener('click', () => this.closeUI());
 
     if (this.indexFromUrl !== null) {
       this.startRotation();
@@ -248,14 +261,14 @@ class UrlRotator {
   }
 
   closeUI = () => {
-    const container: HTMLDivElement | null = document.querySelector(`#${this.selectors.BUTTONS_CONTAINER}`);
+    const container: HTMLDivElement | null = document.querySelector(`#${this.selectors.CONTAINER}`);
     if (container) {
       container.style.display = 'none';
     }
   }
 
   showUI = () => {
-    const container: HTMLDivElement | null = document.querySelector(`#${this.selectors.BUTTONS_CONTAINER}`);
+    const container: HTMLDivElement | null = document.querySelector(`#${this.selectors.CONTAINER}`);
     if (container) {
       container.style.display = 'block';
     }
@@ -273,6 +286,9 @@ class UrlRotator {
 
   stopRotation = () => {
     if (this.timeoutRef) {
+      this.remainingTime = 0;
+      this.updateTimerUI();
+      this.closeUI();
       window.clearTimeout(this.timeoutRef);
       this.timeoutRef = null;
       console.log('url rotator stopped');
@@ -304,8 +320,20 @@ class UrlRotator {
     return index;
   }
 
-  startTimer = (time: number) => {
+  updateTimerUI = () => {
     const container = document.querySelector(`#${this.selectors.MESSAGES_CONTAINER}`);
+    if (container) {
+      const min = Math.floor((this.remainingTime || 0) / 60);
+      const seg = (this.remainingTime || 0) % 60;
+
+      container.innerHTML = `${
+        min >= 10 ? min : '0' + min}:${
+        seg >= 10 ? seg : '0' + seg
+      }`;
+    }
+  }
+
+  startTimer = (time: number) => {
     this.remainingTime = time;
     let intervalRef = window.setInterval(() => {
       if (this.remainingTime === 0 || this.remainingTime === null || this.timeoutRef === null) {
@@ -313,24 +341,9 @@ class UrlRotator {
         return;
       }
       this.remainingTime = this.remainingTime - 1;
-      const min = Math.floor(this.remainingTime / 60);
-      const seg = this.remainingTime % 60;
-      if (container) {
-        container.innerHTML = `${
-          min >= 10 ? min : '0' + min}:${
-          seg >= 10 ? seg : '0' + seg
-        }`;
-      }
+      this.updateTimerUI();
     }, 1000);
   }
-
-  /*getFromStorage = (key) => {
-    return window.localStorage.getItem(key);
-  }
-
-  setToStorage =  (key, value) => {
-    window.localStorage.setItem(key, value);
-  }*/
 }
 
 export const urlRotator = new UrlRotator();
