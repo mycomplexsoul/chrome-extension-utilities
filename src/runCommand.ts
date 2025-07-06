@@ -2,6 +2,7 @@ import { textToSpeech } from './TextToSpeech'
 import { extractProductsFromPage } from './commands/read-product-hunt'
 import { urlRotator } from './utilities/UrlRotator'
 import { extractCoin360, extractFeedly, extractGBM, extractPiQ, extractTelegram, extractTweets } from './commands/extract-content-from-page'
+import { saveLink } from './utilities/SaveLink';
 
 const COMMANDS = [
   {
@@ -43,6 +44,10 @@ const COMMANDS = [
   {
     name: "rotation-next",
     description: "Jumps to the next URL in the rotation."
+  },
+  {
+    name: "rotation-previous",
+    description: "Jumps to the previous URL in the rotation."
   },
   {
     name: "rotation-show-controls",
@@ -87,6 +92,10 @@ const COMMANDS = [
   {
     name: "copy-title-and-url",
     description: "Copies the title and URL of the current page to the clipboard."
+  },
+  {
+    name: "show-save-link-ui",
+    description: "Shows the UI for the save link functionality."
   },
 ];
 
@@ -155,6 +164,10 @@ const doCommand = async (command: string) => {
       urlRotator.nextRotation();
       break;
     }
+    case "rotation-previous": {
+      urlRotator.previousRotation();
+      break;
+    }
     case "read-tweets": {
       const items = extractTweets();
       await textToSpeech.textToSpeechVoice(`Leyendo ${items.length} posts`, 'es-US', 1, 0.6);
@@ -217,6 +230,17 @@ const doCommand = async (command: string) => {
       const url = window.location.href;
       await navigator.clipboard.writeText(`${title} - ${url}`);
       await textToSpeech.textToSpeechVoice(`Copiado título y url al portapapeles`, 'es-US', 1, 0.6);
+      break;
+    }
+    case "show-save-link-ui": {
+      saveLink.showUI();
+      setTimeout(() => {
+        const ratingInput = document.querySelector('#tags-input') as HTMLInputElement;
+        if (ratingInput) {
+          ratingInput.focus();
+        }
+      },200);
+      break;
     }
   }
 }

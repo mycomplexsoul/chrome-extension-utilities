@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { urlRotator } from './utilities/UrlRotator'
 import { linkGrabber } from './utilities/LinkGrabber'
 import { COMMANDS, doCommand } from './runCommand'
+import { saveLink } from './utilities/SaveLink'
 
 type OmniboxProps = {
   open: boolean
@@ -20,7 +21,9 @@ const Omnibox: React.FC<OmniboxProps> = ({ open, onClose, onCommand }) => {
     const url = window.location.href;
     urlRotator.init(url);
     // or the LinkGrabber
-    linkGrabber.init(url);
+    linkGrabber.init();
+    // or the SaveLink
+    saveLink.init(url);
   }, [])
   
   useEffect(() => {
