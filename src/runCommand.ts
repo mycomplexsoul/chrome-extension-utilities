@@ -3,99 +3,84 @@ import { extractProductsFromPage } from './commands/read-product-hunt'
 import { urlRotator } from './utilities/UrlRotator'
 import { extractCoin360, extractFeedly, extractGBM, extractPiQ, extractTelegram, extractTweets } from './commands/extract-content-from-page'
 import { saveLink } from './utilities/SaveLink';
+import { totalPerDay } from './commands/extract-quant';
 
 const COMMANDS = [
   {
     name: "copy-url",
     description: "Copies the current URL to the clipboard."
-  },
-  {
+  }, {
     name: "Agregar a listado para copia",
     description: "Adds the entered text to the list to copy later."
-  },
-  {
+  }, {
     name: "Copiar listado a portapapeles",
     description: "Copies the entire accumulated list to the clipboard."
-  },
-  {
+  }, {
     name: "test-voice",
     description: "Speaks 'hola desde la extensión' using a Spanish voice with the SpeechSynthesis API."
-  },
-  {
+  }, {
     name: "read-product-hunt",
     description: "Reads the name and description of products on the Product Hunt homepage."
-  },
-  {
+  }, {
     name: "copy-product-hunt",
     description: "Copies the name and description of products on the Product Hunt homepage."
-  },
-  {
+  }, {
     name: "read-feedly",
     description: "Reads articles loaded on the Feedly page."
-  },
-  {
+  }, {
     name: "rotation-start",
     description: "Starts the URL rotation."
-  },
-  {
+  }, {
     name: "rotation-stop",
     description: "Stops the URL rotation."
-  },
-  {
+  }, {
     name: "rotation-next",
     description: "Jumps to the next URL in the rotation."
-  },
-  {
+  }, {
     name: "rotation-previous",
     description: "Jumps to the previous URL in the rotation."
-  },
-  {
+  }, {
     name: "rotation-show-controls",
     description: "Shows the URL rotation controls."
-  },
-  {
+  }, {
     name: "rotation-hide-controls",
     description: "Hides the URL rotation controls."
-  },
-  {
+  }, {
     name: "read-tweets",
     description: "Reads the Twitter posts loaded on the current page."
-  },
-  {
+  }, {
     name: "copy-tweets",
     description: "Copies the Twitter posts loaded on the current page."
-  },
-  {
+  }, {
     name: "read-gbm-newsletter",
     description: "Reads the content of the GBM (Grupo Bursátil Mexicano) newsletter if available on the current page."
-  },
-  {
+  }, {
     name: "copy-gbm-newsletter",
     description: "Copies the content of the GBM (Grupo Bursátil Mexicano) newsletter if available on the current page."
-  },
-  {
+  }, {
     name: "copy-piq",
     description: "Copies the news content from PiQ if available on the current page."
-  },
-  {
+  }, {
     name: "copy-coin360",
     description: "Copies the news content from coin360.com if available on the current page."
-  },
-  {
+  }, {
     name: "copy-feedly",
     description: "Copies the article content from Feedly if available on the current page."
-  },
-  {
+  }, {
     name: "copy-telegram",
     description: "Copies the messages content from Telegram if available on the current page."
-  },
-  {
+  }, {
     name: "copy-title-and-url",
     description: "Copies the title and URL of the current page to the clipboard."
-  },
-  {
+  }, {
     name: "show-save-link-ui",
     description: "Shows the UI for the save link functionality."
+  }, {
+    name: "show-save-link-ui",
+    description: "Shows the UI for the save link functionality."
+  }, {
+    name: "quantfury-sum-closed-positions",
+    description: "Calculates the sum of closed positions in Quantfury."
   },
 ];
 
@@ -240,6 +225,17 @@ const doCommand = async (command: string) => {
           ratingInput.focus();
         }
       },200);
+      break;
+    }
+    case "quantfury-sum-closed-positions": {
+      const totals = totalPerDay();
+      const outputContainer = document.querySelector('h2');
+      outputContainer?.insertAdjacentHTML('afterend', `<div id="quantfury-totals" style="margin: 10px; padding: 10px; border-radius: 5px;">
+        <h3>Totales por día</h3>
+        <ul>
+          ${totals.map(total => `<li>${total.date}: $${total.total.toFixed(2)}</li>`).join('')}
+      </ul>
+      </div>`);
       break;
     }
   }

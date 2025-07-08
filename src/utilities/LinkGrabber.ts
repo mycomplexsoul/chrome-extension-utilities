@@ -13,6 +13,9 @@ class LinkGrabber {
     <button type="button" id="btn-stop-carousel">Stop carousel</button>
     <div id="carousel-msg"></div>
     <div>Links</div>
+    <div>
+      <input type="number" value="" id="card-selector" style="width: 80px;" placeholder="Card # to select 1-25">
+    </div>
     <div id="link-count">0 links</div>
     <button type="button" id="btn-copy-links">copy links</button>
   </div>
@@ -130,7 +133,10 @@ registerHandlersForEH() {
                 ${this.links.includes(linkList[index].href) ? 'checked="checked"' : ''}
               />
               <label for="link-grabber-${index}" style="width: 200px; flex: 2;${styleForCard}">
-                <span class="checkpoint-item">${dateList[index].innerText}</span> | ${infoList[index].innerText}
+                <span>${index + 1} | </span>
+                <span class="checkpoint-item">
+                  ${dateList[index].innerText}
+                </span> | ${infoList[index].innerText}
               </label>
             </div>
             <!--<button class="btn-copy-url" data-url="${linkList[index].href}">copy url</button>-->
@@ -175,6 +181,30 @@ registerHandlersForEH() {
           this.saveLinksToLocalStorage();
         });
       });
+      const cardSelector = document.querySelector('#card-selector') as HTMLInputElement;
+      cardSelector.addEventListener('keyup', (event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+          const index: number = parseInt(cardSelector.value.trim(), 10) - 1;
+          const isIndexValid = index >= 0 && index < ehState.linkList.length;
+          if (!isIndexValid) {
+            return;
+          }
+          (Array.from(document.querySelectorAll('.link-grabber-checkbox'))[index] as HTMLInputElement).click();
+          cardSelector.value = '';
+        }
+        if (event.key === 'Enter' && event.shiftKey) {
+          const index: number = parseInt(cardSelector.value.trim(), 10) - 1;
+          const url = ehState.linkList[index].href;
+          if (!url) {
+            return;
+          }
+          // open link in current tab
+          window.location.href = url;
+        }
+      });
+      if (cardSelector) {
+        cardSelector.focus();
+      }
     }
   };
 
