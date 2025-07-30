@@ -3,6 +3,7 @@ import { extractProductsFromPage } from './commands/read-product-hunt'
 import { urlRotator } from './utilities/UrlRotator'
 import { extractCoin360, extractFeedly, extractGBM, extractPiQ, extractTelegram, extractTweets } from './commands/extract-content-from-page'
 import { saveLink } from './utilities/SaveLink';
+import { linkGrabber } from './utilities/LinkGrabber';
 import { totalPerDay } from './commands/extract-quant';
 
 const COMMANDS = [
@@ -10,23 +11,8 @@ const COMMANDS = [
     name: "copy-url",
     description: "Copies the current URL to the clipboard."
   }, {
-    name: "Agregar a listado para copia",
-    description: "Adds the entered text to the list to copy later."
-  }, {
-    name: "Copiar listado a portapapeles",
-    description: "Copies the entire accumulated list to the clipboard."
-  }, {
     name: "test-voice",
     description: "Speaks 'hola desde la extensión' using a Spanish voice with the SpeechSynthesis API."
-  }, {
-    name: "read-product-hunt",
-    description: "Reads the name and description of products on the Product Hunt homepage."
-  }, {
-    name: "copy-product-hunt",
-    description: "Copies the name and description of products on the Product Hunt homepage."
-  }, {
-    name: "read-feedly",
-    description: "Reads articles loaded on the Feedly page."
   }, {
     name: "rotation-start",
     description: "Starts the URL rotation."
@@ -46,26 +32,35 @@ const COMMANDS = [
     name: "rotation-hide-controls",
     description: "Hides the URL rotation controls."
   }, {
-    name: "read-tweets",
-    description: "Reads the Twitter posts loaded on the current page."
+    name: "copy-product-hunt",
+    description: "Copies the name and description of products on the Product Hunt homepage."
+  }, {
+    name: "read-product-hunt",
+    description: "Reads the name and description of products on the Product Hunt homepage."
+  }, {
+    name: "copy-feedly",
+    description: "Copies the article content from Feedly if available on the current page."
+  }, {
+    name: "read-feedly",
+    description: "Reads articles loaded on the Feedly page."
   }, {
     name: "copy-tweets",
     description: "Copies the Twitter posts loaded on the current page."
   }, {
-    name: "read-gbm-newsletter",
-    description: "Reads the content of the GBM (Grupo Bursátil Mexicano) newsletter if available on the current page."
+    name: "read-tweets",
+    description: "Reads the Twitter posts loaded on the current page."
   }, {
     name: "copy-gbm-newsletter",
     description: "Copies the content of the GBM (Grupo Bursátil Mexicano) newsletter if available on the current page."
+  }, {
+    name: "read-gbm-newsletter",
+    description: "Reads the content of the GBM (Grupo Bursátil Mexicano) newsletter if available on the current page."
   }, {
     name: "copy-piq",
     description: "Copies the news content from PiQ if available on the current page."
   }, {
     name: "copy-coin360",
     description: "Copies the news content from coin360.com if available on the current page."
-  }, {
-    name: "copy-feedly",
-    description: "Copies the article content from Feedly if available on the current page."
   }, {
     name: "copy-telegram",
     description: "Copies the messages content from Telegram if available on the current page."
@@ -76,11 +71,11 @@ const COMMANDS = [
     name: "show-save-link-ui",
     description: "Shows the UI for the save link functionality."
   }, {
-    name: "show-save-link-ui",
-    description: "Shows the UI for the save link functionality."
-  }, {
     name: "quantfury-sum-closed-positions",
     description: "Calculates the sum of closed positions in Quantfury."
+  }, {
+    name: "copy-100-grabbed-links",
+    description: "Copies the first 100 links grabbed from the current page to the clipboard."
   },
 ];
 
@@ -163,7 +158,8 @@ const doCommand = async (command: string) => {
     }
     case "copy-tweets": {
       const items = extractTweets();
-      await navigator.clipboard.writeText(items.join('\n'))
+      const header = `Posts de Twitter (${items.length}):\n`;
+      await navigator.clipboard.writeText([header, ...items].join('\n'))
       await textToSpeech.textToSpeechVoice(`Copiados ${items.length} posts al portapapeles`, 'es-US', 1, 0.6);
       break;
     }
@@ -200,7 +196,9 @@ const doCommand = async (command: string) => {
     }
     case "copy-feedly": {
       const items = extractFeedly();
-      await navigator.clipboard.writeText(items.join('\n'))
+      const headerContainer = document.querySelector('#header-title');
+      const header = `${headerContainer?.textContent} - Artículos de Feedly (${items.length}):\n`;
+      await navigator.clipboard.writeText([header, ...items].join('\n'));
       await textToSpeech.textToSpeechVoice(`Copiados ${items.length} artículos al portapapeles`, 'es-US', 1, 0.6);
       break;
     }
@@ -236,6 +234,11 @@ const doCommand = async (command: string) => {
           ${totals.map(total => `<li>${total.date}: $${total.total.toFixed(2)}</li>`).join('')}
       </ul>
       </div>`);
+      break;
+    }
+    case "copy-100-grabbed-links": {
+      linkGrabber.copyLinksToClipboard();
+      await textToSpeech.textToSpeechVoice(`Links copiados`, 'es-US', 1, 0.6);
       break;
     }
   }

@@ -18,7 +18,15 @@ const extractCoin360 = (): string[] => extractContentFromPage('a');
 const extractTelegram = (): string[] => {
   const items: string[] = Array.from(
     document.querySelectorAll('.text-content.clearfix.with-meta')
-  ).map(e => e.textContent || '');
+  ).map(e => e.textContent || '').map((e: string) => {
+      // remove links and timestamps from telegram
+      const index = e.indexOf('https://');
+      if (index !== -1) {
+        return e.split('https://')[0].trim();
+      }
+      return e;
+    }
+  );
   const unreadCount = parseInt(
     document.querySelector(
       '.ListItem.Chat.chat-item-clickable.group.selected'

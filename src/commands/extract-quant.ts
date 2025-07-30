@@ -54,7 +54,6 @@ function totalPerDay() {
     if (!totals[date]) {
       totals[date] = 0;
     }
-    // console.log('profit parse', trade.profit, cleanedProfit, `${cleanedProfit[0]}${cleanedProfit.substring(2)}`, profit);
     totals[date] += profit;
   });
 
