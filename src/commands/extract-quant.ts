@@ -8,7 +8,7 @@ type TTrade = {
 };
 
 function extractQuant() {
-  const tableContainer = document.querySelector('#close_positions #history_body');
+  const tableContainer = document.querySelector('#close_positions #closed_history_body');
   const data: TTrade[] = [];
 
   if (tableContainer) {

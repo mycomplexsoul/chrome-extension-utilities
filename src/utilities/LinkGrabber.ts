@@ -1,6 +1,16 @@
+import { getLocalStorageUsage } from "./utility";
+
 class LinkGrabber {
-  bannerEH = `
-  <div style="position: fixed;z-index: 99999999;top: 100px; left: 10px; background-color: #fff; border: 1px dotted #000; padding: 10px;">
+  bannerEH = () => {
+    // obtain local storage usage to print it
+      const localStorageUsage = getLocalStorageUsage();
+      const localStorageUsageUI = localStorageUsage.details.filter(
+        (e) => e.item === 'link-grabber-items'
+      ).map(
+        (e) => `<p>${e.item}: ${e.usedInKB} KB</p>`
+      ).join('\n');
+
+    return `<div style="position: fixed;z-index: 99999999;top: 100px; left: 10px; background-color: #fff; border: 1px dotted #000; padding: 10px;">
     <button type="button" id="btn-checkpoint">Save checkpoint</button>
     <button type="button" id="btn-select-all">Select all</button>
     <div id="checkpoint-list"></div>
@@ -18,9 +28,13 @@ class LinkGrabber {
     <button type="button" id="btn-play-carousel">Play carousel</button>
     <br/>
     <button type="button" id="btn-stop-carousel">Stop carousel</button>
+    <div>
+      ${localStorageUsageUI}
+    </div>
     <div id="carousel-msg"></div>
   </div>
 `;
+};
 
   links: string[] = [];
 
@@ -166,17 +180,23 @@ class LinkGrabber {
           });
         });
         Array.from(document.querySelectorAll('.link-grabber-checkbox')).forEach((el) => {
-          el.addEventListener('click', (event) => {
+          el.addEventListener('click', (event: Event) => {
             const url = (event.target as HTMLElement)?.getAttribute('data-url');
             const cardContainer = (event.target as HTMLInputElement).parentElement?.querySelector('.checkpoint-label') as HTMLSpanElement;
+            const evt = event as KeyboardEvent;
 
             if (!url) {
               return;
             }
 
             if (!this.links.includes(url)) {
-              this.links.push(url);
-              cardContainer.style.backgroundColor = '#e78c1a';
+              if (evt.shiftKey) {
+                this.links.unshift(url);
+                cardContainer.style.backgroundColor = '#ff7deb';
+              } else {
+                this.links.push(url);
+                cardContainer.style.backgroundColor = '#e78c1a';
+              }
             } else {
               this.links.splice(this.links.indexOf(url), 1);
               cardContainer.style.backgroundColor = 'transparent';
@@ -187,16 +207,18 @@ class LinkGrabber {
         });
         const cardSelector = document.querySelector('#card-selector') as HTMLInputElement;
         cardSelector.addEventListener('keyup', (event) => {
-          if (event.key === 'Enter' && !event.shiftKey) {
+          if (event.key === 'Enter' && !event.altKey) {
             const index: number = parseInt(cardSelector.value.trim(), 10) - 1;
             const isIndexValid = index >= 0 && index < ehState.linkList.length;
             if (!isIndexValid) {
               return;
             }
-            (Array.from(document.querySelectorAll('.link-grabber-checkbox'))[index] as HTMLInputElement).click();
+            (Array.from(document.querySelectorAll('.link-grabber-checkbox'))[index] as HTMLInputElement).dispatchEvent(new MouseEvent('click', {
+              shiftKey: event.shiftKey,
+            }));
             cardSelector.value = '';
           }
-          if (event.key === 'Enter' && event.shiftKey) {
+          if (event.key === 'Enter' && event.altKey) {
             const index: number = parseInt(cardSelector.value.trim(), 10) - 1;
             const url = ehState.linkList[index].href;
             if (!url) {
@@ -221,7 +243,7 @@ class LinkGrabber {
         if (checkpointList) {
           checkpointList.innerHTML = all[key].map(
             (e: string) => `<p>${e}</p>`
-          );
+          ).join('');
         }
       }
     }
@@ -249,7 +271,7 @@ class LinkGrabber {
       if (checkpointList) {
         checkpointList.innerHTML = all[key].map(
           (e: string) => `<p>${e}</p>`
-        );
+        ).join('');
       }
       localStorage.setItem('checkpoint', JSON.stringify(all));
       sessionStorage.setItem('key', key);
@@ -397,7 +419,7 @@ class LinkGrabber {
     const individualImageContainer = document.querySelector('img#img');
     const secondCheck = document.querySelector('#nb');
     if (secondCheck && (pageContainer || individualImageContainer)) {
-      this.injectDiv(this.bannerEH);
+      this.injectDiv(this.bannerEH());
       this.registerHandlersForEH();
     }
     this.links = this.getLinksFromLocalStorage();
