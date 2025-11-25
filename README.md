@@ -61,6 +61,19 @@ Your React app should now be loaded as a Chrome extension!
 - `tsconfig.json`: TypeScript configuration file.
 - `package.json`: Contains the project dependencies and scripts.
 
+## Commands (content extraction)
+
+This project includes small extraction utilities that can be used as content scripts in the browser console. A new command `extract-amazon-order` is available at `src/commands/extract-amazon-order.ts`.
+
+Example (open an Amazon order details page and run in the console):
+
+```ts
+const order = extractAmazonOrder();
+if (order) {
+    console.log(generateAccountingMovements(order));
+}
+```
+
 ## License
 
 This project is licensed under the MIT License.

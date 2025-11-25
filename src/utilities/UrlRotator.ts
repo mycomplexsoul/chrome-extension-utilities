@@ -121,6 +121,9 @@ class UrlRotator {
       }, {
         url: 'https://web.telegram.org/a/',
         time: 60 * 2
+      },{
+        url: 'https://web.whatsapp.com/',
+        time: 60 * 3
       }, {
         // inversion
         url: 'https://twitter.com/i/lists/1637108420376420362',
@@ -129,8 +132,12 @@ class UrlRotator {
         url: 'https://coin360.com/',
         time: 60 * 1
       }, {
-        url: 'https://web.whatsapp.com/',
-        time: 60 * 3
+        // dev
+        url: 'https://twitter.com/i/lists/1408399544010805248',
+        time: 60 * 4
+      }, {
+        url: 'https://cryptobubbles.net/',
+        time: 60 * 1
       }, {
         url: 'https://app.piqsuite.com/',
         time: 60 * 2
@@ -140,6 +147,15 @@ class UrlRotator {
       }, {
         url: 'http://localhost:8001/lasttime',
         time: 60 * 2,
+      }, {
+        url: 'https://www.cryptocapi.com/',
+        time: 60 * 1,
+      }, {
+        url: 'https://www.newsminimalist.com/',
+        time: 60 * 2,
+      }, {
+        url: 'https://luma.com/tribuia',
+        time: 60 * 1,
       }
       /* {
         url: 'https://www.theblock.co/data/crypto-markets/bitcoin-etf/spot-bitcoin-etf-flows',

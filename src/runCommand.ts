@@ -2,6 +2,7 @@ import { textToSpeech } from './TextToSpeech'
 import { extractProductsFromPage } from './commands/read-product-hunt'
 import { urlRotator } from './utilities/UrlRotator'
 import { extractCoin360, extractFeedly, extractGBM, extractPiQ, extractTelegram, extractTweets } from './commands/extract-content-from-page'
+import { extractAmazonOrder, generateAccountingMovements, TAmazonOrder } from './commands/extract-amazon-order'
 import { saveLink } from './utilities/SaveLink';
 import { linkGrabber } from './utilities/LinkGrabber';
 import { totalPerDay } from './commands/extract-quant';
@@ -76,7 +77,10 @@ const COMMANDS = [
   }, {
     name: "copy-100-grabbed-links",
     description: "Copies the first 100 links grabbed from the current page to the clipboard."
-  },
+  }, {
+    name: "extract-amazon-order",
+    description: "Extracts order details from an Amazon order page for all items in the order."
+  }
 ];
 
 const doCommand = async (command: string) => {
@@ -239,6 +243,14 @@ const doCommand = async (command: string) => {
     case "copy-100-grabbed-links": {
       linkGrabber.copyLinksToClipboard();
       await textToSpeech.textToSpeechVoice(`Links copiados`, 'es-US', 1, 0.6);
+      break;
+    }
+    case "extract-amazon-order": {
+      const orderDetails: TAmazonOrder = extractAmazonOrder() || {} as TAmazonOrder;
+      const movements = generateAccountingMovements(orderDetails);
+      await textToSpeech.textToSpeechVoice(`Detalles del pedido de Amazon en la consola del navegador`, 'es-US', 1, 0.6);
+      console.log('Detalles del pedido de Amazon:', orderDetails);
+      movements.forEach(line => console.log(line));
       break;
     }
   }

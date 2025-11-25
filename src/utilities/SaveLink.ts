@@ -49,6 +49,7 @@ class SaveLink {
   private savedLink: TLink | null = null;
   private html = `
     <div id="lnk-banner" style="position: fixed;z-index: 99999999;top: 100px; left: 10px; background-color: #fff; border: 1px dotted #000; padding: 10px; color: black; display: none;">
+      <div id="lnk-url"></div>
       <div>
         <label for="tags">
             Tags
@@ -213,12 +214,16 @@ class SaveLink {
   }
 
   registerHandlers() {
+    const urlContainer = document.querySelector('#lnk-url');
     const saveLinkButton = document.querySelector('#lnk-save-button');
     const closeButton = document.querySelector('#lnk-close-button');
     const tagsInput = document.querySelector('#tags-input');
     if (!saveLinkButton || !closeButton || !tagsInput) {
       console.error('One or more elements not found: saveLinkButton, closeButton, tagsInput');
       return;
+    }
+    if (urlContainer) {
+      urlContainer.textContent = window.location.href;
     }
     saveLinkButton.addEventListener('click', this.saveUrl);
     closeButton.addEventListener('click', this.hideUI);
