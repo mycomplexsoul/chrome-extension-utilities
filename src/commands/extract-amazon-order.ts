@@ -105,7 +105,7 @@ function extractAmazonOrder(): TAmazonOrder | null {
 
   const count = Math.max(titleEls.length, priceEls.length, qtyEls.length);
   for (let i = 0; i < count; i++) {
-    const title = (titleEls[i]?.textContent || '').trim();
+    const title = (titleEls[i]?.textContent || '').trim().replace(/\|/ig, '-');
     const priceText = (priceEls[i]?.textContent || '') || '';
     const price = priceText ? parseCurrency(priceText) : 0;
     const qtyText = (qtyEls[i]?.textContent || '') || '';
@@ -200,9 +200,6 @@ function generateAccountingMovements(order: TAmazonOrder) {
     const line = `${date} | ${desc} | ${amtStr} | Credito | Amazon | Otros ||`;
     lines.push(line);
   });
-
-  // Print each movement line individually to the console (one per line)
-  lines.forEach((l) => console.log(l));
 
   return lines;
 }

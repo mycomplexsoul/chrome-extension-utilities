@@ -8,78 +8,68 @@ class UrlRotator {
       {
         url: 'https://mail.google.com/mail/u/0/',
         time: 60 * 5
-      },
-      {
+      }, {
         url: 'https://feedly.com',
         time: 60 * 6
-      },
-      {
+      }, {
         // media
         url: 'https://twitter.com/i/lists/1412008021719400451',
         time: 60 * 3
-      },
-      {
+      }, {
         url: 'https://outlook.live.com/mail/0/',
         time: 60 * 4
-      },
-      {
+      }, {
         // design
         url: 'https://twitter.com/i/lists/1641246908399120386',
         time: 60 * 3
-      },
-      {
+      }, {
         url: 'https://github.com/mycomplexsoul/delta/pulls',
         time: 60 * 3
-      },
-      {
+      }, {
         // dev
         url: 'https://twitter.com/i/lists/1408399544010805248',
         time: 60 * 4
-      },
-      {
+      }, {
         url: 'https://producthunt.com',
         time: 60 * 2
-      },
-      {
+      }, {
         // math
         url: 'https://twitter.com/i/lists/1660273983256764416',
         time: 60 * 2
-      },
-      {
+      }, {
         url: 'http://localhost:8001/activities?selectedProject=FFJ&sortDescending=true&urlRotatorIndex',
         time: 60 * 5
-      },
-      {
+      }, {
         // security
         url: 'https://twitter.com/i/lists/1429577638608310273',
         time: 60 * 4
-      },
-      {
+      }, {
         url: 'https://feedly.com/i/saved',
         time: 60 * 3
-      },
-      {
+      }, {
         // space
         url: 'https://twitter.com/i/lists/1520984230376914944',
         time: 60 * 2
-      },
-      {
+      }, {
         url: 'https://docs.google.com/spreadsheets/d/1WxV2PMOaw2SdU0n66hd2enyp1WHcSJbsK-u40z-4ZFc/edit?urlRotatorIndex#gid=1073634791',
         time: 60 * 2
-      },
-      {
+      }, {
         // news
         url: 'https://twitter.com/i/lists/1408399351420948485',
         time: 60 * 5
-      },
-      {
+      }, {
         url: 'http://localhost/spaces/WebSearch.php',
         time: 60 * 2
-      },
-      {
+      }, {
         url: 'https://twitter.com/explore/tabs/for-you',
         time: 60 * 3
-      },
+      }, {
+        url: 'https://refactoring.guru/es/design-patterns',
+        time: 60 * 5,
+      }, {
+        url: 'https://tradle.net/',
+        time: 60 * 5,
+      }
     ],
     trading: [
       {
@@ -88,8 +78,16 @@ class UrlRotator {
         onLoad: () => {
           const clean = (e: Element | null) => e?.classList.remove('blurred');
           const q = () => document.querySelector('.blurred');
+          const cleanNotch = () => {
+            const notch = document.querySelector('.landing-notch-top');
+              console.log('notch', notch);
+              if (typeof notch !== 'undefined') {
+                ((notch?.parentNode?.parentNode?.parentNode?.parentNode?.parentNode?.parentNode) as Element).innerHTML = '';
+              }
+          };
           if (q()) {
             clean(q());
+            cleanNotch();
           } else {
             setTimeout(() => {
               clean(q());
@@ -97,13 +95,14 @@ class UrlRotator {
               document.querySelector('section')?.parentNode?.removeChild(
                 document.querySelector('section') as Element
               );
+              cleanNotch();
               const container = document.querySelector('#heatmap')?.parentElement;
               if (container) {
                 container.style = 'height: 120vh; min-height: 1200px;';
               }
               // trigger a window resize to fix the layout
               window.dispatchEvent(new Event('resize'));
-            }, 500);
+            }, 600);
           }
         }
       },
@@ -156,6 +155,9 @@ class UrlRotator {
       }, {
         url: 'https://luma.com/tribuia',
         time: 60 * 1,
+      }, {
+        url: 'https://www.marinevesseltraffic.com/HORMUZ-STRAIT/ship-traffic-tracker',
+        time: 60 * 1,
       }
       /* {
         url: 'https://www.theblock.co/data/crypto-markets/bitcoin-etf/spot-bitcoin-etf-flows',
@@ -199,9 +201,6 @@ class UrlRotator {
         url: 'https://app.starmeup.com/home',
         time: 60 * 5
       }, {
-        url: 'https://refactoring.guru/es/design-patterns',
-        time: 60 * 5,
-      }, {
         url: 'http://localhost:8001/plan-salvacion',
         time: 60 * 3,
       }, {
@@ -219,9 +218,12 @@ class UrlRotator {
   public selectors = {
     CONTAINER: 'urlRotator_Container',
     MESSAGES_CONTAINER: 'urlRotator_MessagesContainer',
+    BUTTON_CONTAINER: 'urlRotator_ButtonContainer',
     CLOSE_BTN: 'urlRotator_CloseBtn',
+    PAUSE_BTN: 'urlRotator_PauseBtn',
   }
   public timer = 60 * 2;
+  public isPaused = false;
   public selectedList: string | null = null;
   public indexFromUrl: number | null = null;
   public timeoutRef: number | null = null;
@@ -284,7 +286,7 @@ class UrlRotator {
       '  align-items: center;',
       '}',
       `#${this.selectors.CLOSE_BTN} {`,
-      '  display: none;',
+      '  display: inline-block;',
       '  margin-left: 10px;',
       '  background: #e74c3c;',
       '  color: #fff;',
@@ -295,7 +297,22 @@ class UrlRotator {
       '  font-size: 14px;',
       '  z-index: 100000000;',
       '}',
-      `#${this.selectors.MESSAGES_CONTAINER}:hover #${this.selectors.CLOSE_BTN} {`,
+      `#${this.selectors.PAUSE_BTN} {`,
+      '  display: inline-block;',
+      '  margin-left: 10px;',
+      '  background: #16202b;',
+      '  color: #222;',
+      '  border: none;',
+      '  border-radius: 4px;',
+      '  padding: 2px 4px;',
+      '  cursor: pointer;',
+      '  font-size: 14px;',
+      '  z-index: 100000000;',
+      '}',
+      `#${this.selectors.MESSAGES_CONTAINER} #${this.selectors.BUTTON_CONTAINER} {`,
+      '  display: none;',
+      '}',
+      `#${this.selectors.MESSAGES_CONTAINER}:hover #${this.selectors.BUTTON_CONTAINER} {`,
       '  display: block;',
       '}',
     ].join('\n');
@@ -304,9 +321,11 @@ class UrlRotator {
     const dragHandle = `<div id="urlRotator_DragHandle" style="border-left: 3px dotted #b0b8c1; height: 16px; width: 4px; margin-right: 10px; cursor: move; user-select: none; display: flex; align-items: center; justify-content: center;"></div>`;
     return `${style}<div id="${this.selectors.CONTAINER}" title="Click to rotate to next url" style="${containerStyles}">\n  ${dragHandle}<div id="${
       this.selectors.MESSAGES_CONTAINER
-    }">\n    <span id="urlRotator_Timer"></span>\n    <button id="${
+    }">\n    <span id="urlRotator_Timer"></span>\n  <span id="${this.selectors.BUTTON_CONTAINER}">\n  <button id="${
+      this.selectors.PAUSE_BTN
+    }" title="Pausar timer">⏸️</button>\n    <button id="${
       this.selectors.CLOSE_BTN
-    }" title="Stop timer and close UI">✕</button>\n  </div>\n</div>`;
+    }" title="Stop timer and close UI">✕</button>\n  </span></div>\n</div>`;
   }
 
   registerHandlers = () => {
@@ -318,7 +337,16 @@ class UrlRotator {
     if (closeBtn) {
       closeBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        this.closeUI();
+        this.stopRotation();
+      });
+    }
+
+    // Handler para el botón de pausa
+    const pauseBtn = document.getElementById(this.selectors.PAUSE_BTN);
+    if (pauseBtn) {
+      pauseBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.togglePause();
       });
     }
 
@@ -402,10 +430,37 @@ class UrlRotator {
     if (this.timeoutRef) {
       this.remainingTime = 0;
       this.updateTimerUI();
-      this.closeUI();
       window.clearTimeout(this.timeoutRef);
       this.timeoutRef = null;
       console.log('url rotator stopped');
+    }
+  }
+
+  pauseRotation = () => {
+    this.isPaused = true;
+    this.stopRotation();
+    this.updatePauseBtn();
+  }
+
+  resumeRotation = () => {
+    this.isPaused = false;
+    this.startRotation();
+    this.updatePauseBtn();
+  }
+
+  togglePause = () => {
+    if (this.isPaused) {
+      this.resumeRotation();
+    } else {
+      this.pauseRotation();
+    }
+  }
+
+  updatePauseBtn = () => {
+    const pauseBtn = document.getElementById(this.selectors.PAUSE_BTN);
+    if (pauseBtn) {
+      pauseBtn.textContent = this.isPaused ? '▶️' : '⏸️';
+      pauseBtn.title = this.isPaused ? 'Reanudar timer' : 'Pausar timer';
     }
   }
 
@@ -414,12 +469,11 @@ class UrlRotator {
       const index = this.calculateNextIndex();
       console.log(`scheduling url rotation to index ${index}`);
       const { time } = this.lists[this.selectedList][index === 0 ? this.lists[this.selectedList].length - 1 : index - 1];
-  
       this.startTimer(time);
-  
       this.timeoutRef = setTimeout(() => {
         this.nextRotation(index);
       }, time * 1000);
+      this.updatePauseBtn();
     }
   }
 
@@ -461,6 +515,10 @@ class UrlRotator {
   startTimer = (time: number) => {
     this.remainingTime = time;
     let intervalRef = window.setInterval(() => {
+      if (this.isPaused) {
+        window.clearInterval(intervalRef);
+        return;
+      }
       if (this.remainingTime === 0 || this.remainingTime === null || this.timeoutRef === null) {
         window.clearInterval(intervalRef);
         return;

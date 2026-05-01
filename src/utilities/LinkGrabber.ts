@@ -125,6 +125,10 @@ class LinkGrabber {
             let unseen = false;
             if (flagDates.length > 0 && flagDates[0].getTime() >= date.getTime()) {
               styleForCard = 'background-color: #e7e47a;';
+              if (this.links.includes(linkList[index].href)) {
+                styleForCard = 'background-color: #e78c1a;';
+              }
+
               unseen = true;
             } 
             if (flagDates.length > 1 && flagDates[1].getTime() >= date.getTime()) {
@@ -185,6 +189,8 @@ class LinkGrabber {
             const cardContainer = (event.target as HTMLInputElement).parentElement?.querySelector('.checkpoint-label') as HTMLSpanElement;
             const evt = event as KeyboardEvent;
 
+            console.log('Checkbox click event', evt.shiftKey);
+
             if (!url) {
               return;
             }
@@ -207,18 +213,20 @@ class LinkGrabber {
         });
         const cardSelector = document.querySelector('#card-selector') as HTMLInputElement;
         cardSelector.addEventListener('keyup', (event) => {
-          if (event.key === 'Enter' && !event.altKey) {
-            const index: number = parseInt(cardSelector.value.trim(), 10) - 1;
+          console.log('Key up event listener', event.key, event.shiftKey);
+          if (event.key === 'Enter' || event.key === '.') { // toggle add/remove to listing
+            const index: number = parseInt(cardSelector.value.trim().replace('.',''), 10) - 1;
             const isIndexValid = index >= 0 && index < ehState.linkList.length;
             if (!isIndexValid) {
               return;
             }
+            console.log('trigger checkbox click', event.key, event.shiftKey, event.shiftKey || event.key === '.');
             (Array.from(document.querySelectorAll('.link-grabber-checkbox'))[index] as HTMLInputElement).dispatchEvent(new MouseEvent('click', {
-              shiftKey: event.shiftKey,
+              shiftKey: event.shiftKey || event.key === '.',
             }));
             cardSelector.value = '';
           }
-          if (event.key === 'Enter' && event.altKey) {
+          if (event.key === 'Insert') { // navigate to the link
             const index: number = parseInt(cardSelector.value.trim(), 10) - 1;
             const url = ehState.linkList[index].href;
             if (!url) {
