@@ -256,33 +256,89 @@ class LinkGrabber {
       }
     }
 
-    const checkpoint = () => {
-      // retrieve previous stored checkpoints for this url
+    const updateCheckpointButtonVisibility = () => {
+      const btnCheckpoint = document.querySelector('#btn-checkpoint') as HTMLButtonElement | null;
+      if (!btnCheckpoint) return;
       const all = JSON.parse(localStorage.getItem('checkpoint') || '{}');
-      // obtain checkpoint data from current page
-      const dateList = Array.from(document.querySelectorAll('.checkpoint-item'));
-      const data = (dateList[0] as HTMLElement).innerText;
       const key = new URLSearchParams(window.location.search).get('key') || sessionStorage.getItem('key');
-      if (!key) {
+      const firstDateText = (document.querySelector('.checkpoint-item') as HTMLElement | null)?.innerText;
+
+      // Hide by default when we don't have required info
+      if (!firstDateText || !key) {
+        btnCheckpoint.style.display = 'none';
         return;
       }
-      // store checkpoint and save it to storage
-      if (key && !all[key]) {
+
+      const pageDate = new Date(firstDateText);
+      const savedList: string[] = (all && all[key]) ? all[key] : [];
+
+      // If the exact timestamp already exists in storage, don't allow
+      if (savedList.includes(firstDateText)) {
+        btnCheckpoint.style.display = 'none';
+        return;
+      }
+
+      // If there is a last saved checkpoint, ensure the page date is strictly later
+      if (savedList.length > 0) {
+        const lastSavedDate = new Date(savedList[0]);
+        if (pageDate.getTime() <= lastSavedDate.getTime()) {
+          btnCheckpoint.style.display = 'none';
+          return;
+        }
+      }
+
+      // Passed checks: show button
+      btnCheckpoint.style.display = 'block';
+    }
+
+    const checkpoint = () => {
+      const all = JSON.parse(localStorage.getItem('checkpoint') || '{}');
+      const dateList = Array.from(document.querySelectorAll('.checkpoint-item'));
+      const data = (dateList[0] as HTMLElement | undefined)?.innerText;
+      const key = new URLSearchParams(window.location.search).get('key') || sessionStorage.getItem('key');
+      const btnCheckpoint = document.querySelector('#btn-checkpoint') as HTMLButtonElement | null;
+      if (!key || !data) {
+        if (btnCheckpoint) btnCheckpoint.style.display = 'none';
+        return;
+      }
+      if (!all[key]) {
         all[key] = [];
       }
+      const savedList: string[] = all[key];
+
+      // Do not save duplicate timestamp
+      if (savedList.includes(data)) {
+        if (btnCheckpoint) btnCheckpoint.style.display = 'none';
+        sessionStorage.setItem(`checkpointSaved_${key}`, '1');
+        return;
+      }
+
+      // Do not save if the page date is not strictly later than the most recent saved checkpoint
+      if (savedList.length > 0) {
+        const lastSavedDate = new Date(savedList[0]);
+        const pageDate = new Date(data);
+        if (pageDate.getTime() <= lastSavedDate.getTime()) {
+          if (btnCheckpoint) btnCheckpoint.style.display = 'none';
+          return;
+        }
+      }
+
+      // store checkpoint and save it to storage
       all[key].unshift(data);
       if (all[key].length > 4) {
         all[key].pop();
       }
+
       // update UI
       const checkpointList = document.querySelector('#checkpoint-list');
       if (checkpointList) {
-        checkpointList.innerHTML = all[key].map(
-          (e: string) => `<p>${e}</p>`
-        ).join('');
+        checkpointList.innerHTML = all[key].map((e: string) => `<p>${e}</p>`).join('');
       }
       localStorage.setItem('checkpoint', JSON.stringify(all));
       sessionStorage.setItem('key', key);
+      // mark that we've saved a checkpoint for this key during this session/page
+      sessionStorage.setItem(`checkpointSaved_${key}`, '1');
+      if (btnCheckpoint) btnCheckpoint.style.display = 'none';
     };
 
     const copyLinks = () => {
@@ -325,8 +381,8 @@ class LinkGrabber {
     });
 
     // wait to rendering before applying new layout automatically
-    setTimeout(renderCheckpoint, 300);
-    setTimeout(toggleView, 500);
+    setTimeout(() => { renderCheckpoint(); updateCheckpointButtonVisibility(); }, 300);
+    setTimeout(() => { toggleView(); updateCheckpointButtonVisibility(); }, 500);
 
     // preload next page
     if (document.querySelector('.ptds')){

@@ -1,3 +1,5 @@
+import { scrollDown } from "./utility";
+
 class UrlRotator {
   public lists: Record<string, {
     url: string;
@@ -109,14 +111,24 @@ class UrlRotator {
       {
         // trading
         url: 'https://twitter.com/i/lists/1377429256498741249',
-        time: 60 * 4
+        time: 60 * 4,
+        onLoad: () => {
+          scrollDown(100);
+        }
+      }, {
+        // bloomberg live
+        url: 'https://www.youtube.com/watch?v=QB5BNdBFujE&urlRotatorIndex',
+        time: 120 * 1
       }, {
         url: 'https://finviz.com/',
         time: 60 * 1
       }, {
         // investment
         url: 'https://x.com/i/lists/1934006541612634484',
-        time: 60 * 3
+        time: 60 * 3,
+        onLoad: () => {
+          scrollDown(120);
+        }
       }, {
         url: 'https://web.telegram.org/a/',
         time: 60 * 2
@@ -126,16 +138,30 @@ class UrlRotator {
       }, {
         // inversion
         url: 'https://twitter.com/i/lists/1637108420376420362',
-        time: 60 * 3
+        time: 60 * 3,
+        onLoad: () => {
+          scrollDown(150);
+        }
+      }, {
+        // adn noticias live
+        url: 'https://www.youtube.com/watch?v=d6sRTSG4rgs&urlRotatorIndex',
+        time: 60 * 1
       }, {
         url: 'https://coin360.com/',
         time: 60 * 1
       }, {
         // dev
         url: 'https://twitter.com/i/lists/1408399544010805248',
-        time: 60 * 4
+        time: 60 * 4,
+        onLoad: () => {
+          scrollDown(100);
+        }
       }, {
         url: 'https://cryptobubbles.net/',
+        time: 60 * 1
+      }, {
+        // Forex signals 1 min BTC ETH
+        url: 'https://www.youtube.com/watch?v=oGwhObWjC0g&pp=0gcJCT8LAYcqIYzv&urlRotatorIndex',
         time: 60 * 1
       }, {
         url: 'https://app.piqsuite.com/',
@@ -147,7 +173,7 @@ class UrlRotator {
         url: 'http://localhost:8001/lasttime',
         time: 60 * 2,
       }, {
-        url: 'https://www.cryptocapi.com/',
+        url: 'https://www.cryptocapi.com/mercado',
         time: 60 * 1,
       }, {
         url: 'https://www.newsminimalist.com/',
