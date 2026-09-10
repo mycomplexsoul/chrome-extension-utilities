@@ -6,6 +6,8 @@ import { extractAmazonOrder, generateAccountingMovements, TAmazonOrder } from '.
 import { saveLink } from './utilities/SaveLink';
 import { linkGrabber } from './utilities/LinkGrabber';
 import { totalPerDay } from './commands/extract-quant';
+import { collectTwitterLikes } from './commands/twitter-likes';
+import { collectTwitterSaved } from './commands/twitter-saved';
 
 const COMMANDS = [
   {
@@ -80,6 +82,12 @@ const COMMANDS = [
   }, {
     name: "extract-amazon-order",
     description: "Extracts order details from an Amazon order page for all items in the order."
+  }, {
+    name: "twitter-likes",
+    description: "Collects liked tweets from the current Twitter likes page, removes the like from each processed tweet, and logs the collected URLs."
+  }, {
+    name: "twitter-saved",
+    description: "Collects saved tweets from the current Twitter saved page, removes the save from each processed tweet, and logs the collected URLs."
   }
 ];
 
@@ -251,6 +259,18 @@ const doCommand = async (command: string) => {
       await textToSpeech.textToSpeechVoice(`Detalles del pedido de Amazon en la consola del navegador`, 'es-US', 1, 0.6);
       console.log('Detalles del pedido de Amazon:', orderDetails);
       movements.forEach(line => console.log(line));
+      break;
+    }
+    case "twitter-likes": {
+      const results = await collectTwitterLikes();
+      await textToSpeech.textToSpeechVoice(`Procesados ${results.tweetUrls.length} tweets`, 'es-US', 1, 0.6);
+      console.log('Twitter likes collected:', results);
+      break;
+    }
+    case "twitter-saved": {
+      const results = await collectTwitterSaved();
+      await textToSpeech.textToSpeechVoice(`Procesados ${results.tweetUrls.length} tweets guardados`, 'es-US', 1, 0.6);
+      console.log('Twitter saved collected:', results);
       break;
     }
   }

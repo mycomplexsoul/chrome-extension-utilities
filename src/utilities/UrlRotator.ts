@@ -1,4 +1,5 @@
 import { scrollDown } from "./utility";
+import { attachScrollControls } from "./scrollUtility";
 
 class UrlRotator {
   public lists: Record<string, {
@@ -247,9 +248,12 @@ class UrlRotator {
     BUTTON_CONTAINER: 'urlRotator_ButtonContainer',
     CLOSE_BTN: 'urlRotator_CloseBtn',
     PAUSE_BTN: 'urlRotator_PauseBtn',
+    SCROLL_TOGGLE_BTN: 'urlRotator_ScrollToggleBtn',
+    SCROLL_SPEED_INPUT: 'urlRotator_ScrollSpeedInput',
   }
   public timer = 60 * 2;
   public isPaused = false;
+  public scrollSpeed = 25;
   public selectedList: string | null = null;
   public indexFromUrl: number | null = null;
   public timeoutRef: number | null = null;
@@ -323,17 +327,27 @@ class UrlRotator {
       '  font-size: 14px;',
       '  z-index: 100000000;',
       '}',
-      `#${this.selectors.PAUSE_BTN} {`,
+      `#${this.selectors.PAUSE_BTN}, #${this.selectors.SCROLL_TOGGLE_BTN} {`,
       '  display: inline-block;',
       '  margin-left: 10px;',
       '  background: #16202b;',
-      '  color: #222;',
+      '  color: #fff;',
       '  border: none;',
       '  border-radius: 4px;',
       '  padding: 2px 4px;',
       '  cursor: pointer;',
       '  font-size: 14px;',
       '  z-index: 100000000;',
+      '}',
+      `#${this.selectors.SCROLL_SPEED_INPUT} {`,
+      '  width: 56px;',
+      '  margin-left: 10px;',
+      '  background: #fff;',
+      '  color: #000;',
+      '  border-radius: 4px;',
+      '  border: 1px solid #ccc;',
+      '  padding: 2px 4px;',
+      '  font-size: 12px;',
       '}',
       `#${this.selectors.MESSAGES_CONTAINER} #${this.selectors.BUTTON_CONTAINER} {`,
       '  display: none;',
@@ -347,11 +361,17 @@ class UrlRotator {
     const dragHandle = `<div id="urlRotator_DragHandle" style="border-left: 3px dotted #b0b8c1; height: 16px; width: 4px; margin-right: 10px; cursor: move; user-select: none; display: flex; align-items: center; justify-content: center;"></div>`;
     return `${style}<div id="${this.selectors.CONTAINER}" title="Click to rotate to next url" style="${containerStyles}">\n  ${dragHandle}<div id="${
       this.selectors.MESSAGES_CONTAINER
-    }">\n    <span id="urlRotator_Timer"></span>\n  <span id="${this.selectors.BUTTON_CONTAINER}">\n  <button id="${
+    }">\n    <span id="urlRotator_Timer"></span>\n  <span id="${this.selectors.BUTTON_CONTAINER}">\n    <button id="${
       this.selectors.PAUSE_BTN
-    }" title="Pausar timer">⏸️</button>\n    <button id="${
+    }" title="Pausar timer">⏸️</button>
+    <input id="${this.selectors.SCROLL_SPEED_INPUT}" type="number" min="1" step="1" value="${this.scrollSpeed}" title="Velocidad de scroll (ms)" />
+    <button id="${
+      this.selectors.SCROLL_TOGGLE_BTN
+    }" title="Pausar scroll">⏸️</button>
+    <button id="${
       this.selectors.CLOSE_BTN
-    }" title="Stop timer and close UI">✕</button>\n  </span></div>\n</div>`;
+    }" title="Stop timer and close UI">✕</button>
+  </span></div>\n</div>`;
   }
 
   registerHandlers = () => {
@@ -375,6 +395,7 @@ class UrlRotator {
         this.togglePause();
       });
     }
+    const scrollControls = attachScrollControls({ selectors: this.selectors, initialSpeed: this.scrollSpeed });
 
     // Handler for drag and drop
     const container = document.getElementById(this.selectors.CONTAINER);
@@ -416,6 +437,9 @@ class UrlRotator {
     if (this.indexFromUrl !== null) {
       this.startRotation();
     }
+
+    scrollControls.syncState();
+    setTimeout(() => scrollControls.syncState(), 500);
   }
 
   closeUI = () => {

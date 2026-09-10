@@ -31,13 +31,14 @@ declare global {
       speed: number;
       dir: number;
       interval: number;
+      active?: boolean;
     };
   }
 }
 
 const scrollDown = (speed?: number) => {
   if (!window.SH) {
-    window.SH = { speed: 0, dir: 1, interval: 0 };
+    window.SH = { speed: 0, dir: 1, interval: 0, active: false };
   }
   if (window.SH.interval) {
     clearInterval(window.SH.interval);
@@ -50,9 +51,13 @@ const scrollDown = (speed?: number) => {
   }
   if (window.SH.speed) {
     const dir = window.SH.speed > 0 ? 1 : -1;
+    window.SH.dir = dir;
+    window.SH.active = true;
     window.SH.interval = window.setInterval(function () {
       window.scrollBy(0, dir);
-    }, window.SH.speed * dir);
+    }, Math.abs(window.SH.speed));
+  } else {
+    window.SH.active = false;
   }
 };
 
