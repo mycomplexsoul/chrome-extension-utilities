@@ -1,3 +1,4 @@
+import { preloadNextPageAssets } from "./NextPagePreloader";
 import { getLocalStorageUsage } from "./utility";
 
 class LinkGrabber {
@@ -384,15 +385,8 @@ class LinkGrabber {
     setTimeout(() => { renderCheckpoint(); updateCheckpointButtonVisibility(); }, 300);
     setTimeout(() => { toggleView(); updateCheckpointButtonVisibility(); }, 500);
 
-    // preload next page
-    if (document.querySelector('.ptds')){
-      const nextPage = document.querySelector('.ptds')?.nextElementSibling?.getElementsByTagName('a')[0].href;
-      document.body.innerHTML += `<link rel="prerender" href="${nextPage}">`;
-    }
-    if (document.querySelector('#next')){
-      const nextPage = (document.querySelector('#next') as HTMLAnchorElement)?.href;
-      document.body.innerHTML += `<link rel="prerender" href="${nextPage}">`;
-    }
+    // preload next page and its thumbnail assets
+    preloadNextPageAssets();
 
     // handlers for carousel
     const carouselMsg: HTMLDivElement | null = document.querySelector('#carousel-msg');
