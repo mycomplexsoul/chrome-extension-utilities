@@ -12,7 +12,7 @@ class UrlRotator {
         url: 'https://mail.google.com/mail/u/0/',
         time: 60 * 5
       }, {
-        url: 'https://feedly.com',
+        url: 'https://feedly.com/i',
         time: 60 * 6
       }, {
         // media
@@ -128,7 +128,7 @@ class UrlRotator {
         url: 'https://x.com/i/lists/1934006541612634484',
         time: 60 * 3,
         onLoad: () => {
-          scrollDown(120);
+          scrollDown(80);
         }
       }, {
         url: 'https://web.telegram.org/a/',
@@ -141,11 +141,11 @@ class UrlRotator {
         url: 'https://twitter.com/i/lists/1637108420376420362',
         time: 60 * 3,
         onLoad: () => {
-          scrollDown(150);
+          scrollDown(80);
         }
       }, {
         // adn noticias live
-        url: 'https://www.youtube.com/watch?v=d6sRTSG4rgs&urlRotatorIndex',
+        url: 'https://www.youtube.com/watch?v=PC8nOb8cTNg&urlRotatorIndex',
         time: 60 * 1
       }, {
         url: 'https://coin360.com/',
@@ -155,7 +155,7 @@ class UrlRotator {
         url: 'https://twitter.com/i/lists/1408399544010805248',
         time: 60 * 4,
         onLoad: () => {
-          scrollDown(100);
+          scrollDown(60);
         }
       }, {
         url: 'https://cryptobubbles.net/',
