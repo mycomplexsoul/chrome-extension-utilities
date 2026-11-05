@@ -17,49 +17,70 @@ class UrlRotator {
       }, {
         // media
         url: 'https://twitter.com/i/lists/1412008021719400451',
-        time: 60 * 3
+        time: 60 * 3,
+        onLoad: () => {
+          scrollDown(80);
+        }
       }, {
         url: 'https://outlook.live.com/mail/0/',
         time: 60 * 4
       }, {
         // design
         url: 'https://twitter.com/i/lists/1641246908399120386',
-        time: 60 * 3
+        time: 60 * 3,
+        onLoad: () => {
+          scrollDown(80);
+        }
       }, {
         url: 'https://github.com/mycomplexsoul/delta/pulls',
         time: 60 * 3
       }, {
         // dev
         url: 'https://twitter.com/i/lists/1408399544010805248',
-        time: 60 * 4
+        time: 60 * 4,
+        onLoad: () => {
+          scrollDown(100);
+        }
       }, {
         url: 'https://producthunt.com',
         time: 60 * 2
       }, {
         // math
         url: 'https://twitter.com/i/lists/1660273983256764416',
-        time: 60 * 2
+        time: 60 * 2,
+        onLoad: () => {
+          scrollDown(80);
+        }
       }, {
         url: 'http://localhost:8001/activities?selectedProject=FFJ&sortDescending=true&urlRotatorIndex',
         time: 60 * 5
       }, {
         // security
         url: 'https://twitter.com/i/lists/1429577638608310273',
-        time: 60 * 4
+        time: 60 * 4,
+        onLoad: () => {
+          scrollDown(60);
+        }
       }, {
         url: 'https://feedly.com/i/saved',
         time: 60 * 3
       }, {
         // space
         url: 'https://twitter.com/i/lists/1520984230376914944',
-        time: 60 * 2
+        time: 60 * 2,
+        onLoad: () => {
+          scrollDown(80);
+        }
       }, {
         url: 'https://docs.google.com/spreadsheets/d/1WxV2PMOaw2SdU0n66hd2enyp1WHcSJbsK-u40z-4ZFc/edit?urlRotatorIndex#gid=1073634791',
         time: 60 * 2
       }, {
         // news
         url: 'https://twitter.com/i/lists/1408399351420948485',
-        time: 60 * 5
+        time: 60 * 5,
+        onLoad: () => {
+          scrollDown(60);
+        }
       }, {
         url: 'http://localhost/spaces/WebSearch.php',
         time: 60 * 2
