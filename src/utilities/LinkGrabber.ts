@@ -38,6 +38,7 @@ class LinkGrabber {
 };
 
   links: string[] = [];
+  private paginationShortcutsRegistered = false;
 
 
   injectDiv(divHtml: string) {
@@ -70,6 +71,53 @@ class LinkGrabber {
 
   getLinksFromLocalStorage() {
     return JSON.parse(localStorage.getItem('link-grabber-items') || '[]');
+  }
+
+  registerPaginationShortcuts() {
+    if (this.paginationShortcutsRegistered) {
+      return;
+    }
+
+    this.paginationShortcutsRegistered = true;
+    let altKeyPressed = false;
+    window.addEventListener('keydown', (event: KeyboardEvent) => {
+      if (event.key === 'Alt') {
+        altKeyPressed = true;
+        return;
+      }
+
+      if (!(event.altKey || altKeyPressed) || event.ctrlKey || event.metaKey) {
+        return;
+      }
+
+      if (event.key !== '<') {
+        return;
+      }
+
+      const gallery = document.querySelector('#gdt');
+      if (!gallery) {
+        return;
+      }
+
+      const paginationLinks = document.querySelector('.ptt')?.querySelectorAll<HTMLAnchorElement>('a');
+      const link = paginationLinks?.item(paginationLinks.length - 1);
+      if (!link) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+      console.log('LinkGrabber navigating to:', link.href);
+      link.click();
+    }, true);
+    window.addEventListener('keyup', (event: KeyboardEvent) => {
+      if (event.key === 'Alt') {
+        altKeyPressed = false;
+      }
+    }, true);
+    window.addEventListener('blur', () => {
+      altKeyPressed = false;
+    });
   }
 
   registerHandlersForEH() {
@@ -472,6 +520,8 @@ class LinkGrabber {
   }
 
   init() {
+    this.registerPaginationShortcuts();
+
     const selectorToDetectPageToApply = '.itg.glte';
     const pageContainer = document.querySelector(selectorToDetectPageToApply);
     const individualImageContainer = document.querySelector('img#img');
